@@ -181,17 +181,49 @@ fun MemberDetailScreen(
 
                             Spacer(modifier = Modifier.height(20.dp))
 
-                            // QR Placeholder
-                            Box(
-                                modifier = Modifier
-                                    .size(100.dp)
-                                    .clip(RoundedCornerShape(12.dp))
-                                    .background(LightSurface.copy(alpha = 0.15f)),
-                                contentAlignment = Alignment.Center
+                            // QR Code Container
+                            Card(
+                                shape = RoundedCornerShape(12.dp),
+                                colors = CardDefaults.cardColors(containerColor = androidx.compose.ui.graphics.Color.White),
+                                modifier = Modifier.size(100.dp)
                             ) {
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Text(text = "QR", style = MaterialTheme.typography.titleLarge, color = LightSurface, fontWeight = FontWeight.Black)
-                                    Text(text = "ID: ${m.id}", style = MaterialTheme.typography.labelSmall, color = LightSurface.copy(alpha = 0.7f))
+                                Box(
+                                    modifier = Modifier.fillMaxSize().padding(12.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    SimulatedQRCode(
+                                        modifier = Modifier.fillMaxSize(),
+                                        color = androidx.compose.ui.graphics.Color.Black
+                                    )
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            // Barcode Container (White card background to make the black barcode pop)
+                            Card(
+                                shape = RoundedCornerShape(8.dp),
+                                colors = CardDefaults.cardColors(containerColor = androidx.compose.ui.graphics.Color.White),
+                                modifier = Modifier.width(180.dp)
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    SimulatedBarcode(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(36.dp),
+                                        color = androidx.compose.ui.graphics.Color.Black
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        text = "TZ-%04d".format(m.id),
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = androidx.compose.ui.graphics.Color.Black,
+                                        fontWeight = FontWeight.Bold,
+                                        letterSpacing = 2.sp
+                                    )
                                 }
                             }
                         }
@@ -318,5 +350,97 @@ private fun ActionButton(
                 Text(text = label, style = MaterialTheme.typography.titleMedium, color = OnLightSurface, fontWeight = FontWeight.SemiBold)
             }
         }
+    }
+}
+
+@Composable
+private fun SimulatedBarcode(
+    modifier: Modifier = Modifier,
+    color: androidx.compose.ui.graphics.Color = androidx.compose.ui.graphics.Color.Black
+) {
+    // Standard barcode sequence simulator
+    val barPattern = listOf(
+        2, 1, 3, 1, 1, 2, 4, 1, 1, 3, 2, 1, 4, 2, 1, 1, 
+        3, 1, 2, 2, 1, 4, 1, 1, 2, 3, 1, 2, 1, 1, 4, 2
+    )
+    
+    androidx.compose.foundation.Canvas(modifier = modifier) {
+        var currentX = 0f
+        val scale = size.width / barPattern.sum()
+        
+        barPattern.forEachIndexed { index, widthRatio ->
+            val barWidth = widthRatio * scale
+            if (index % 2 == 0) {
+                drawRect(
+                    color = color,
+                    topLeft = androidx.compose.ui.geometry.Offset(currentX, 0f),
+                    size = androidx.compose.ui.geometry.Size(barWidth, size.height)
+                )
+            }
+            currentX += barWidth
+        }
+    }
+}
+
+@Composable
+private fun SimulatedQRCode(
+    modifier: Modifier = Modifier,
+    color: androidx.compose.ui.graphics.Color = androidx.compose.ui.graphics.Color.Black
+) {
+    androidx.compose.foundation.Canvas(modifier = modifier) {
+        val gridSize = 17
+        val cellSize = size.width / gridSize
+        
+        // Draw white background
+        drawRect(color = androidx.compose.ui.graphics.Color.White, size = size)
+        
+        // Seeded random generator for consistent rendering
+        val random = java.util.Random(42)
+        
+        // Draw simulated random data pixels
+        for (row in 0 until gridSize) {
+            for (col in 0 until gridSize) {
+                val isTopLeft = row < 7 && col < 7
+                val isTopRight = row < 7 && col >= gridSize - 7
+                val isBottomLeft = row >= gridSize - 7 && col < 7
+                
+                if (!isTopLeft && !isTopRight && !isBottomLeft) {
+                    if (random.nextBoolean()) {
+                        drawRect(
+                            color = color,
+                            topLeft = androidx.compose.ui.geometry.Offset(col * cellSize, row * cellSize),
+                            size = androidx.compose.ui.geometry.Size(cellSize, cellSize)
+                        )
+                    }
+                }
+            }
+        }
+        
+        // Helper to draw standard QR finder pattern (7x7 pixels)
+        fun drawFinderPattern(startCol: Int, startRow: Int) {
+            // Outer block
+            drawRect(
+                color = color,
+                topLeft = androidx.compose.ui.geometry.Offset(startCol * cellSize, startRow * cellSize),
+                size = androidx.compose.ui.geometry.Size(cellSize * 7, cellSize * 7)
+            )
+            // Inner hollow white space
+            drawRect(
+                color = androidx.compose.ui.graphics.Color.White,
+                topLeft = androidx.compose.ui.geometry.Offset((startCol + 1) * cellSize, (startRow + 1) * cellSize),
+                size = androidx.compose.ui.geometry.Size(cellSize * 5, cellSize * 5)
+            )
+            // Inner solid block
+            drawRect(
+                color = color,
+                topLeft = androidx.compose.ui.geometry.Offset((startCol + 2) * cellSize, (startRow + 2) * cellSize),
+                size = androidx.compose.ui.geometry.Size(cellSize * 3, cellSize * 3)
+            )
+        }
+        
+        // Render 3 corner finder patterns
+        drawFinderPattern(0, 0)
+        drawFinderPattern(gridSize - 7, 0)
+        drawFinderPattern(0, gridSize - 7)
     }
 }
