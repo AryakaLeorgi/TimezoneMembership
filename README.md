@@ -1,5 +1,25 @@
 # TimezoneMembership
 
+## Informasi Proyek
+
+**Anggota Kelompok:**
+
+| Nama | NRP |
+|---|---|
+| Aryaka Leorgi Epridaka | 5025231117 |
+| Muhammad Risyad Himawan Putra | 5025231205 |
+
+
+**Tautan Sumber Daya:**
+* **Source Code GitHub:** https://github.com/AryakaLeorgi/TimezoneMembership
+* **Link Project Requirement:** https://drive.google.com/file/d/1nmoltS56WvYHeTYYmfm3NbdxOTZ_FyRd/view?usp=sharing
+* **Link PPT:** https://canva.link/qsfw5yh1cqmy3fp
+* **Link Aplikasi:** https://github.com/AryakaLeorgi/TimezoneMembership/releases/download/apk/TimezoneMembership.apk
+* **Link Infografis:** https://canva.link/o43x2oh4pywauij
+* **Link YouTube:** https://youtu.be/Qy8J54NoRQU
+
+---
+
 Aplikasi Android untuk manajemen keanggotaan (membership) dan program loyalitas **Timezone**.
 Dibangun menggunakan **Jetpack Compose** dengan arsitektur **MVVM** (Model-View-ViewModel) dan
 penyimpanan data lokal menggunakan **Room Database**.
